@@ -14,17 +14,16 @@ def write_image():
 	drives = ls.split('\n')
 	
 	if len(drives) > 0:
-		drive = drives[0]
-	
-		path = os.path.join('/media/pi', drive)
-		image_path = os.path.join(path, 'images')
-		if not os.path.exists(image_path):
-			os.mkdir(image_path)
-	
-		image_name = time.strftime('%Y%m%d_%H%M%S.jpg', time.gmtime())
-		image_name_with_path = os.path.join(image_path, image_name)
-		camera.capture(image_name_with_path)
-		camera.close()
+		for drive in drives:
+			path = os.path.join('/media/pi', drive)
+			image_path = os.path.join(path, 'images')
+			if not os.path.exists(image_path):
+				os.mkdir(image_path)
+		
+			image_name = time.strftime('%Y%m%d_%H%M%S.jpg', time.gmtime())
+			image_name_with_path = os.path.join(image_path, image_name)
+			camera.capture(image_name_with_path)
+			camera.close()
 
 	else:
 		print 'No media device!'
