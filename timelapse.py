@@ -15,6 +15,8 @@ def write_image():
 	
 	if len(drives) > 0:
 		for drive in drives:
+			if len(drive) < 1:
+				continue
 			path = os.path.join('/media/pi', drive)
 			image_path = os.path.join(path, 'images')
 			if not os.path.exists(image_path):
