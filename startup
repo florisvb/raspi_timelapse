@@ -1,0 +1,15 @@
+#! /bin/bash
+# /etc/init.d/startup
+
+### BEGIN INIT INFO
+# Provides: startup
+# Required-Start: $syslog
+# Required-Stop: $syslog
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: mount usb drive and run timelapse
+### END INIT INFO
+
+sudo mount /dev/sda1 /media/usb -o uid=pi,gid=pi
+python /home/pi/Documents/raspi_timelapse/timelapse.py
+exit 0
