@@ -10,6 +10,7 @@
 # Short-Description: mount usb drive and run timelapse
 ### END INIT INFO
 
+python /home/pi/Documents/raspi_timelapse/poweroff.py&
 sudo mount /dev/sda1 /media/usb -o uid=pi,gid=pi
-python /home/pi/Documents/raspi_timelapse/timelapse.py
+python /home/pi/Documents/raspi_timelapse/timelapse.py&
 exit 0
