@@ -8,6 +8,7 @@ def write_image():
 
 	camera = picamera.PiCamera()
 	camera.resolution = (2592,1944)
+	camera.exposure_compensation = 4	
 
 	path = '/media/usb'
 	image_path = os.path.join(path, 'images')
