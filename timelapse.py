@@ -33,7 +33,7 @@ def calculate_shutter_speed(camera, initial_shutter_speed, desired_median):
                     # reset the stream before the next capture
 
 
-                    actual_median = np.median(stream.array)
+                    actual_median = np.median(stream.array[100:-100,50:-50])
 		    err = actual_median - desired_median
                     shutter_speed = int(shutter_speed + gain*(err))  
                     print err, shutter_speed          
@@ -56,6 +56,7 @@ def calculate_shutter_speed(camera, initial_shutter_speed, desired_median):
 def write_image(camera):
 
 	camera.resolution = (2592,1944)
+	#camera.resolution = (320,240)
 
 	path = '/media/usb'
 	image_path = os.path.join(path, 'images')
@@ -69,7 +70,7 @@ def write_image(camera):
 if __name__ == '__main__':
 	dt = 10
 	shutter_speed = 30000 # initial
-	desired_median = 220
+	desired_median = 130
 	while 1:
 		tstart = time.time()
                 with picamera.PiCamera() as camera:
