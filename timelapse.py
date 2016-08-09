@@ -23,7 +23,7 @@ def calculate_exposure_compensation(camera, exposure_compensation, desired_media
                     # reset the stream before the next capture
 
 
-                    actual_median = np.median(stream.array[100:-100,50:-50])
+                    actual_median = np.median(stream.array[110:-110,150:-150])
 		    err = actual_median - desired_median
 		    float_ec = exposure_compensation + gain*(err)
                     exposure_compensation = float_ec
@@ -95,7 +95,7 @@ if __name__ == '__main__':
         time.sleep(120)
 	dt = 10
 	exposure_compensation = 0 # initial
-	desired_median = 170
+	desired_median = 200
 	while 1:
 		tstart = time.time()
                 with picamera.PiCamera() as camera:
