@@ -5,12 +5,13 @@ import picamera
 import picamera.array
 import os, sys
 import numpy as np
-import atexit
+import atexit, signal
 
 class Timelapse():
     def __init__(self):
         self.is_shutdown = False
-        atexit.register(self.shutdown_called)
+        atexit.register(self.release)
+        signal.signal(signal.SIGTERM, self.signal_handler)
         
     def calculate_exposure_compensation(self):
         camera = self.camera
@@ -65,22 +66,22 @@ class Timelapse():
     def write_image(self):
         camera = self.camera
         
-	    camera.resolution = (2592,1944)
-	    #camera.resolution = (320,240)
+	camera.resolution = (2592,1944)
+	#camera.resolution = (320,240)
 
-	    path = '/media/usb'
-	    image_path = os.path.join(path, 'images')
-	    if not os.path.exists(image_path):
-		    os.mkdir(image_path)
+	path = '/media/usb'
+	image_path = os.path.join(path, 'images')
+	if not os.path.exists(image_path):
+	    os.mkdir(image_path)
 
-	    image_name = time.strftime('%Y%m%d_%H%M%S.jpg', time.gmtime())
-	    image_name_with_path = os.path.join(image_path, image_name)
-	    camera.capture(image_name_with_path)
+	image_name = time.strftime('%Y%m%d_%H%M%S.jpg', time.gmtime())
+	image_name_with_path = os.path.join(image_path, image_name)
+	camera.capture(image_name_with_path)
 	    
     def run_timelapse(self, dt=10, desired_median=200, exposure_compensation=10):
-		tstart = time.time()
-		self.exposure_compensation = exposure_compensation
-		self.desired_median = desired_median
+	tstart = time.time()
+	self.exposure_compensation = exposure_compensation
+	self.desired_median = desired_median
 		
         with picamera.PiCamera() as self.camera:
             self.camera.exposure_mode = 'night'
@@ -89,20 +90,26 @@ class Timelapse():
             self.camera.shutter_speed = 0
                             
             while not self.is_shutdown:
-                calculate_exposure_compensation()
-           		write_image(camera)
+                self.calculate_exposure_compensation()
+           	self.write_image()
                 telapsed = time.time() - tstart
 
-		        if telapsed < dt:
-			        time.sleep(dt-telapsed)
+		if telapsed < dt:
+		    time.sleep(dt-telapsed)
 
-    def shutdown_called(self):
+    def release(self):
         self.is_shutdown = True
+        self.camera.close()
+        print 'released resources'
+
+    def signal_handler(signol, frame):
+        print 'shutting down'
+        sys.exit(0)
 
 if __name__ == '__main__':
-    time.sleep(120)
+    time.sleep(1)
 	
-	timelapse = Timelapse()
-	timelapse.run_timelapse()
+    timelapse = Timelapse()
+    timelapse.run_timelapse()
 		
 		
