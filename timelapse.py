@@ -6,6 +6,7 @@ import picamera.array
 import os, sys
 import numpy as np
 import atexit, signal
+import RPi.GPIO as GPIO
 
 class Timelapse():
     def __init__(self):
@@ -45,14 +46,14 @@ class Timelapse():
                 if exposure_compensation < -25:
                     exposure_compensation = -25
                     done = True
-                print err, float_ec, exposure_compensation, camera.exposure_compensation
+                #print err, float_ec, exposure_compensation, camera.exposure_compensation
                 #if np.abs(shutter_speed - camera.shutter_speed) < 40:
                 #    if err < 20:
                 #        camera.iso = camera.iso*2
                 if camera.exposure_compensation == exposure_compensation:
                     done = True
                 camera.exposure_compensation = int(exposure_compensation)
-                print actual_median, camera.exposure_compensation, camera.exposure_speed
+                #print actual_median, camera.exposure_compensation, camera.exposure_speed
 
                 stream.seek(0)
                 stream.truncate()
@@ -79,7 +80,7 @@ class Timelapse():
 	camera.capture(image_name_with_path)
 	    
     def run_timelapse(self, dt=10, desired_median=200, exposure_compensation=10):
-	tstart = time.time()
+	
 	self.exposure_compensation = exposure_compensation
 	self.desired_median = desired_median
 		
@@ -90,12 +91,27 @@ class Timelapse():
             self.camera.shutter_speed = 0
                             
             while not self.is_shutdown:
+		tstart = time.time()
                 self.calculate_exposure_compensation()
+		print 'calculated exposure'
            	self.write_image()
+		print 'wrote image'		
                 telapsed = time.time() - tstart
-
+		print 'sleeping'
 		if telapsed < dt:
 		    time.sleep(dt-telapsed)
+                print 'awake'
+
+		gpio_pin_21 = GPIO.input(21)
+		if not gpio_pin_21:
+			self.release()
+			sys.exit(0)
+                #try:
+                #    GPIO.wait_for_edge(21, GPIO.FALLING)
+		#    
+                #    self.release()
+                #except:
+                #    pass
 
     def release(self):
         self.is_shutdown = True
@@ -108,6 +124,10 @@ class Timelapse():
 
 if __name__ == '__main__':
     time.sleep(1)
+
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
 	
     timelapse = Timelapse()
     timelapse.run_timelapse()
